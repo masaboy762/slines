@@ -1,18 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
-    <script>
-        window.onload = function() {
-            setTimeout(function() {
-                window.location.href = "steam://rungameid/322170";
-            }, 1000); // Delay in milliseconds (e.g., 5000 milliseconds = 5 seconds)
-        }
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Old-School Screensaver</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background-color: black;
+    }
+    canvas {
+        display: block;
+    }
+</style>
 </head>
 <body>
-    <img src="https://cdn.discordapp.com/attachments/1163712706919022623/1220761968034709544/Nimeton_video_Tehty_Clipchampilla.gif?ex=66101e2d&is=65fda92d&hm=993f363b274a77856d65126c93fa6d871154f8da8dd953ef726f23e7957567fa&">
+<canvas id="screensaver"></canvas>
+
+<script>
+// Get the canvas element and its 2D context
+const canvas = document.getElementById('screensaver');
+const ctx = canvas.getContext('2d');
+
+// Set canvas dimensions
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Array to store shapes
+const shapes = [];
+
+// Function to draw a bendy line with a glowing effect
+function drawBendyLine(shape) {
+    ctx.beginPath();
+    ctx.moveTo(shape.points[0].x, shape.points[0].y);
+
+    for (let i = 1; i < shape.points.length - 2; i++) {
+        const xc = (shape.points[i].x + shape.points[i + 1].x) / 2;
+        const yc = (shape.points[i].y + shape.points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(shape.points[i].x, shape.points[i].y, xc, yc);
+    }
+
+    // Draw the last segment
+    ctx.quadraticCurveTo(
+        shape.points[shape.points.length - 2].x,
+        shape.points[shape.points.length - 2].y,
+        shape.points[shape.points.length - 1].x,
+        shape.points[shape.points.length - 1].y
+    );
+
+    // Set the glow color and width
+    ctx.strokeStyle = `rgba(${shape.color.r}, ${shape.color.g}, ${shape.color.b}, ${shape.alpha})`;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = `rgba(${shape.color.r}, ${shape.color.g}, ${shape.color.b}, ${shape.alpha})`;
+    ctx.shadowBlur = 20;
+    ctx.stroke();
+}
+
+// Function to animate the screensaver
+function animate() {
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw and update shapes
+    for (let i = 0; i < shapes.length; i++) {
+        const shape = shapes[i];
+
+        // Update shape progress
+        shape.progress += 0.01;
+
+        // Draw bendy line with glowing effect
+        drawBendyLine(shape);
+
+        // Reduce alpha for fading effect
+        shape.alpha -= 0.006;
+
+        // Remove shapes with alpha below threshold
+        if (shape.alpha <= 0) {
+            shapes.splice(i, 1);
+            i--;
+        }
+    }
+
+    // Draw new shapes at intervals
+    if (Math.random() < 0.02) { // Adjust frequency of new shapes here (e.g., every 50 frames on average)
+        drawShape();
+    }
+
+    requestAnimationFrame(animate);
+}
+
+// Function to draw a random bendy line
+function drawShape() {
+    const numPoints = Math.floor(Math.random() * 5) + 3; // Random number of points between 3 and 7
+    const points = [];
+
+    // Generate random points
+    for (let i = 0; i < numPoints; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        points.push({ x, y });
+    }
+
+    // Random color
+    const color = {
+        r: Math.floor(Math.random() * 256),
+        g: Math.floor(Math.random() * 256),
+        b: Math.floor(Math.random() * 256)
+    };
+
+    shapes.push({ points, color, alpha: 1.0, progress: 0.0 });
+}
+
+// Start the animation
+animate();
+
+// Resize canvas when window is resized
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
 </body>
 </html>
